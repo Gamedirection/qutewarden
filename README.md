@@ -15,6 +15,8 @@ Minimal qutebrowser + Bitwarden integration for Windows.
   - Windows wrapper that runs the Python userscript.
 - `userscripts/bw-setup.ps1`
   - Helper script to unlock Bitwarden and set `BW_SESSION`.
+- `install.ps1`
+  - Safe installer that avoids overwriting user files and appends only missing keybinds.
 
 ## Prerequisites
 
@@ -22,15 +24,19 @@ Minimal qutebrowser + Bitwarden integration for Windows.
 - qutebrowser installed
 - Python available in `PATH`
 - Bitwarden CLI (`bw`) installed and in `PATH`
+  - Download: https://bitwarden.com/download/#command-line-interface
 
 ## Setup
 
-1. Copy userscripts into qutebrowser userscripts dir:
+1. Run the installer (recommended):
 
 ```powershell
-Copy-Item -Force .\userscripts\qute-bitwarden.py "$env:APPDATA\qutebrowser\data\userscripts\qute-bitwarden.py"
-Copy-Item -Force .\userscripts\qute-bitwarden.cmd "$env:APPDATA\qutebrowser\data\userscripts\qute-bitwarden.cmd"
+.\install.ps1
 ```
+
+The installer is non-destructive:
+- does not overwrite existing user files
+- appends only missing qutewarden keybind lines to `config.py`
 
 2. Ensure Bitwarden session is available:
 
@@ -39,17 +45,24 @@ bw login <your-email>
 bw unlock --raw
 ```
 
-Set the returned value to `BW_SESSION` in your shell/session (or user env).
+Set the returned value to `BW_SESSION` in your shell/session (or user environment).
 
-3. Add keybinds to your qutebrowser `config.py`:
+3. Restart qutebrowser.
+
+## Manual Setup (optional)
+
+```powershell
+Copy-Item -Force .\userscripts\qute-bitwarden.py "$env:APPDATA\qutebrowser\data\userscripts\qute-bitwarden.py"
+Copy-Item -Force .\userscripts\qute-bitwarden.cmd "$env:APPDATA\qutebrowser\data\userscripts\qute-bitwarden.cmd"
+```
+
+Add keybinds to qutebrowser `config.py`:
 
 ```python
 config.bind('pw', "message-info 'loading...';; spawn --userscript qute-bitwarden.cmd combo-start", mode='normal')
 config.bind('pU', 'spawn --userscript qute-bitwarden.cmd user-active', mode='normal')
 config.bind('pW', 'spawn --userscript qute-bitwarden.cmd pass-active', mode='normal')
 ```
-
-4. Restart qutebrowser.
 
 ## Usage
 
